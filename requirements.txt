@@ -1,4 +1,5 @@
 loguru
 pymongo
-
+pysnooper
+pymongoshell
 
