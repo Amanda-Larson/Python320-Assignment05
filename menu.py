@@ -46,7 +46,6 @@ def add_user():
         print("User was successfully added")
 
 
-@pysnooper.snoop()
 def update_user():
     """
     Updates information for an existing user
@@ -55,16 +54,10 @@ def update_user():
     email = input('User email: ')
     user_name = input('User name: ')
     user_last_name = input('User last name: ')
-    try:
-        if main.update_user(user_id, email, user_name, user_last_name):
-            print("User was successfully updated")
-        else:
-            print("An error occurred while trying to update user")
-    except Exception:
-        logger.exception("NEW EXCEPTION! - Look here!")
+    update = main.update_user(user_id, email, user_name, user_last_name)
+    return update
 
-
-# @pysnooper.snoop()
+# @pysnooper.snoop
 def search_user():
     """
     Searches a user in the database

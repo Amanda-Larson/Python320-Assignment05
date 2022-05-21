@@ -69,6 +69,7 @@ class UserCollection:
                     file_users = csv.DictReader(file)
                     result = UserAccounts.insert_many(file_users)
                     # UserAccounts.createIndex({'USER_ID':1}, {unique:true})
+                    return result
             except FileNotFoundError:
                 print('File not found')
                 return False
@@ -85,15 +86,18 @@ class UserCollection:
 
             # collection in database
             UserAccounts = db["UserAccounts"]
-            if user_id in UserAccounts.find():
+
+            new_user = {"USER_ID": user_id}
+
+            if UserAccounts.count_documents({'USER_ID': user_id}) > 0:
                 logger.info("Reject new user  -  user_id already exists")
+                print('This user already exists, try again.')
                 return False
             new_user = {"USER_ID": user_id, "EMAIL": email, "NAME": user_name, "LASTNAME": user_last_name}
             UserAccounts.insert_one(new_user)
             return True
 
     @staticmethod
-    @pysnooper.snoop
     def modify_user(user_id, email, user_name, user_last_name):
         """
         Modifies an existing user
@@ -105,12 +109,14 @@ class UserCollection:
 
             # collection in database
             UserAccounts = db["UserAccounts"]
-            # if user_id not in UserAccounts["USER_ID"]:
-            # logger.info(f'{user_id} not in the database')
-            # return False
-            UserAccounts.find_one_and_update({"USER_ID": user_id}, {"USER_ID": user_id, "EMAIL": email,
-                                                                    "NAME": user_name, "LASTNAME": user_last_name},
-                                             return_document=ReturnDocument.AFTER)
+            if UserAccounts.count_documents({'USER_ID': user_id}) < 1:
+                logger.info("This user does not exist, please try again.")
+                return False
+            query = {'USER_ID':user_id}
+            updated = {"$set": {"USER_ID": user_id, "EMAIL": email,
+                                                                    "NAME": user_name, "LASTNAME": user_last_name}}
+            UserAccounts.update_one(query, updated)
+            print(f'User {user_id} has been successfully updated.')
             return ReturnDocument
 
     @staticmethod

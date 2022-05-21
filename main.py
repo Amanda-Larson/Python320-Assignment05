@@ -162,7 +162,7 @@ def save_status_updates(filename, status_collection):
     - Otherwise, it returns True.
     """
 
-
+# @pysnooper.snoop(depth=3)
 def add_user(user_id, email, user_name, user_last_name):
     """
     Creates a new instance of User and stores it in user_collection
