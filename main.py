@@ -5,7 +5,6 @@
 """
 import csv
 
-
 import user_status
 from users import UserCollection as uc
 from user_status import UserStatusCollection as us
@@ -35,40 +34,11 @@ def print_mdb_collection(collection_name):
         print(doc)
 
 
-# @pysnooper.snoop
-# def init_user_accounts():
-#     """
-#     Creates and returns a new instance of UserCollection
-#     """
-#     mongo = MongoDBConnection()
-#     with mongo:
-#         # mongodb database; it all starts here
-#         db = mongo.connection.media
-#
-#         # collection in database
-#         UserAccounts = db["UserAccounts"]
-#         return UserAccounts
-
-
-def init_status_collection():
-    """
-    Creates and returns a new instance of UserStatusCollection
-    """
-    mongo = MongoDBConnection()
-    with mongo:
-        # mongodb database; it all starts here
-        db = mongo.connection.media
-
-        # collection in database
-        StatusUpdates = db["StatusUpdates"]
-        return StatusUpdates
-
-
 def load_users(filename):
     """
     Opens a CSV file with user data and
     adds it to an existing instance of
-    UserCollection
+    mongodb
 
     Requirements:
     - If a user_id already exists, it
@@ -78,78 +48,27 @@ def load_users(filename):
     (such as empty fields in the source CSV file)
     - Otherwise, it returns True.
     """
-    mongo = MongoDBConnection()
-    with mongo:
-        # mongodb database; it all starts here
-        db = mongo.connection.media
-
-        # collection in database
-        UserAccounts = db["StatusUpdates"]
-
-        try:
-            with open(filename, newline='', encoding="UTF-8") as file:
-                file_users = csv.DictReader(file)
-                result = UserAccounts.insert_many(file_users)
-                return result
-        except FileNotFoundError:
-            print('File not found')
-            return False
-
-
-def save_users(filename, user_collection):
-    """
-    Saves all users in user_collection into
-    a CSV file
-
-    Requirements:
-    - If there is an existing file, it will
-    overwrite it.
-    - Returns False if there are any errors
-    (such as an invalid filename).
-    - Otherwise, it returns True.
-    """
-    header = ['USER_ID', 'EMAIL', 'NAME', 'LASTNAME']
-    try:
-        with open(filename, mode='a', newline='', encoding="UTF-8") as file:
-            writer = csv.DictWriter(file, delimiter=',', fieldnames=header)
-            writer.writeheader()
-            for key, values in user_collection().database:
-                row = {key: values}
-                writer.writerow(row)
-                return True
-    except FileNotFoundError:
-        print(f'File {filename} not found')
-        return False
+    loading_users = uc.load_users(filename)
+    return loading_users
 
 
 def load_status_updates(filename):
     """
-    Opens a CSV file with status data and adds it to an existing
-    instance of UserStatusCollection
+    Opens a CSV file with user data and statuses
+    adds it to an existing instance of
+    mongodb
 
     Requirements:
-    - If a status_id already exists, it will ignore it and continue to
-      the next.
-    - Returns False if there are any errors(such as empty fields in the
-      source CSV file)
+    - If a user_id already exists, it
+    will ignore it and continue to the
+    next.
+    - Returns False if there are any errors
+    (such as empty fields in the source CSV file)
     - Otherwise, it returns True.
     """
-    mongo = MongoDBConnection()
-    with mongo:
-        # mongodb database; it all starts here
-        db = mongo.connection.media
+    loading_statuses = us.load_status_updates(filename)
+    return loading_statuses
 
-        # collection in database
-        StatusUpdates = db["StatusUpdates"]
-
-        try:
-            with open(filename, newline='', encoding="UTF-8") as file:
-                file_users = csv.DictReader(file)
-                result = StatusUpdates.insert_many(file_users)
-                return result
-
-        except FileNotFoundError:
-            print('File not found')
 
 
 def save_status_updates(filename, status_collection):
@@ -161,6 +80,7 @@ def save_status_updates(filename, status_collection):
     - Returns False if there are any errors(such an invalid filename).
     - Otherwise, it returns True.
     """
+
 
 # @pysnooper.snoop(depth=3)
 def add_user(user_id, email, user_name, user_last_name):

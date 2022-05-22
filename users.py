@@ -6,7 +6,8 @@ Classes for user information for the social network project
 from loguru import logger
 from pymongo import MongoClient
 from pymongo import ReturnDocument
-from pymongo import errors as e
+from user_status import *
+from pymongo import ASCENDING
 import pymongoshell
 import csv
 import pysnooper
@@ -37,6 +38,7 @@ class UserCollection:
     Contains a collection of Users objects
     """
 
+    @staticmethod
     def load_users(filename):
         """
         Opens a CSV file with user data and
@@ -68,7 +70,7 @@ class UserCollection:
                 with open(filename, newline='', encoding="UTF-8") as file:
                     file_users = csv.DictReader(file)
                     result = UserAccounts.insert_many(file_users)
-                    # UserAccounts.createIndex({'USER_ID':1}, {unique:true})
+                    UserAccounts.create_index([('USER_ID', ASCENDING)], unique=True)
                     return result
             except FileNotFoundError:
                 print('File not found')
@@ -112,9 +114,9 @@ class UserCollection:
             if UserAccounts.count_documents({'USER_ID': user_id}) < 1:
                 logger.info("This user does not exist, please try again.")
                 return False
-            query = {'USER_ID':user_id}
+            query = {'USER_ID': user_id}
             updated = {"$set": {"USER_ID": user_id, "EMAIL": email,
-                                                                    "NAME": user_name, "LASTNAME": user_last_name}}
+                                "NAME": user_name, "LASTNAME": user_last_name}}
             UserAccounts.update_one(query, updated)
             print(f'User {user_id} has been successfully updated.')
             return ReturnDocument
@@ -131,12 +133,19 @@ class UserCollection:
 
             # collection in database
             UserAccounts = db["UserAccounts"]
-            if user_id not in self.database:
-                logger.info(f'{user_id} not in the database')
+            StatusUpdates = db["StatusUpdates"]
+            try:
+                query = {'USER_ID': user_id}
+                UserAccounts.delete_one(query)
+                StatusUpdates.delete_many(query)
+                logger.info(f'User ID {user_id}, deleted.')
+                return True
+            except Exception as error:
+                print('An error has occurred - user was not deleted.')
+                logger.info(error)
                 return False
-            del self.database[user_id]
-            return True
 
+    @staticmethod
     def search_user(user_id):
         """
         Searches for user data
