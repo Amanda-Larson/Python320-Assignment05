@@ -2,21 +2,22 @@
 Classes for user information for the social network project
 """
 # pylint: disable=R0903
+# pylint: disable=C0103
+# pylint: disable=E0401
 
+import csv
 from loguru import logger
 from pymongo import MongoClient
 from pymongo import ReturnDocument
-from user_status import *
 from pymongo import ASCENDING
-import pymongoshell
-import csv
-import pysnooper
+# from user_status import *
+
 
 logger.info("Let's get to debugging users.py")
 logger.add("users_and_status.log", backtrace=True, diagnose=True)
 
 
-class MongoDBConnection:
+class UserMongoDBConnection:
     """MongoDB Connection"""
 
     def __init__(self, host='127.0.0.1', port=27017):
@@ -53,7 +54,7 @@ class UserCollection:
         (such as empty fields in the source CSV file)
         - Otherwise, it returns True.
         """
-        mongo = MongoDBConnection()
+        mongo = UserMongoDBConnection()
         with mongo:
             # mongodb database; it all starts here
             db = mongo.connection.media
@@ -81,7 +82,7 @@ class UserCollection:
         """
         Adds a new user to the collection
         """
-        mongo = MongoDBConnection()
+        mongo = UserMongoDBConnection()
         with mongo:
             # mongodb database; it all starts here
             db = mongo.connection.media
@@ -95,7 +96,8 @@ class UserCollection:
                 logger.info("Reject new user  -  user_id already exists")
                 print('This user already exists, try again.')
                 return False
-            new_user = {"USER_ID": user_id, "EMAIL": email, "NAME": user_name, "LASTNAME": user_last_name}
+            new_user = {"USER_ID": user_id, "EMAIL": email,
+                        "NAME": user_name, "LASTNAME": user_last_name}
             UserAccounts.insert_one(new_user)
             return True
 
@@ -104,7 +106,7 @@ class UserCollection:
         """
         Modifies an existing user
         """
-        mongo = MongoDBConnection()
+        mongo = UserMongoDBConnection()
         with mongo:
             # mongodb database; it all starts here
             db = mongo.connection.media
@@ -126,7 +128,7 @@ class UserCollection:
         """
         Deletes an existing user
         """
-        mongo = MongoDBConnection()
+        mongo = UserMongoDBConnection()
         with mongo:
             # mongodb database; it all starts here
             db = mongo.connection.media
@@ -150,7 +152,7 @@ class UserCollection:
         """
         Searches for user data
         """
-        mongo = MongoDBConnection()
+        mongo = UserMongoDBConnection()
         with mongo:
             # mongodb database; it all starts here
             db = mongo.connection.media

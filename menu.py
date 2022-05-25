@@ -1,11 +1,14 @@
 """
 Provides a basic frontend
 """
+
+# pylint: disable=C0103
+# pylint: disable=E0401
+
 import sys
 from loguru import logger
-import pysnooper
 import main
-from users import UserCollection as uc
+
 
 logger.info("Let's get to debugging")
 logger.add("out.log", backtrace=True, diagnose=True)
@@ -139,14 +142,6 @@ def delete_status():
         print("An error occurred while trying to delete status")
     else:
         print("Status was successfully deleted")
-
-
-def save_status():
-    """
-    Saves status database into a file
-    """
-    filename = input('Enter filename for status file: ')
-    main.save_status_updates(filename)
 
 
 def quit_program():

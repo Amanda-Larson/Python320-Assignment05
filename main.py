@@ -3,35 +3,9 @@
 # Who: ALarson
 # What/When: 4/24/2022 - started assignment
 """
-import csv
 
-import user_status
 from users import UserCollection as uc
 from user_status import UserStatusCollection as us
-import pysnooper
-
-
-class MongoDBConnection:
-    """MongoDB Connection"""
-
-    def __init__(self, host='127.0.0.1', port=27017):
-        """ be sure to use the ip address not name for local windows"""
-        self.host = host
-        self.port = port
-        self.connection = None
-
-    def __enter__(self):
-        self.connection = MongoClient(self.host, self.port)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.connection.close()
-
-
-def print_mdb_collection(collection_name):
-    """for each collection/table pring the document/row"""
-    for doc in collection_name.find():
-        print(doc)
 
 
 def load_users(filename):
@@ -68,18 +42,6 @@ def load_status_updates(filename):
     """
     loading_statuses = us.load_status_updates(filename)
     return loading_statuses
-
-
-
-def save_status_updates(filename, status_collection):
-    """
-    Saves all statuses in status_collection into a CSV file
-
-    Requirements:
-    - If there is an existing file, it will overwrite it.
-    - Returns False if there are any errors(such an invalid filename).
-    - Otherwise, it returns True.
-    """
 
 
 # @pysnooper.snoop(depth=3)

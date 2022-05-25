@@ -2,8 +2,10 @@
 classes to manage the user status messages
 """
 # pylint: disable=R0903
-from loguru import logger
+# pylint: disable=C0103
+# pylint: disable=E0401
 import csv
+from loguru import logger
 from pymongo import ReturnDocument
 from pymongo import MongoClient
 
@@ -63,6 +65,7 @@ class UserStatusCollection:
 
             except FileNotFoundError:
                 print('File not found')
+                return False
 
     @staticmethod
     def add_status(status_id, user_id, status_text):
@@ -78,7 +81,8 @@ class UserStatusCollection:
             StatusUpdates = db["StatusUpdates"]
             UserAccounts = db["UserAccounts"]
 
-            if StatusUpdates.count_documents({'STATUS_ID': status_id}) > 0 and UserAccounts.count_documents({'USER_ID': user_id}) > 0:
+            if StatusUpdates.count_documents({'STATUS_ID': status_id}) > 0 and \
+                    UserAccounts.count_documents({'USER_ID': user_id}) > 0:
                 logger.info("Reject new status  -  status_id already exists")
                 print('This status already exists, try again.')
                 return False
@@ -104,7 +108,8 @@ class UserStatusCollection:
                 logger.info("This user does not exist, please try again.")
                 return False
             query = {'USER_ID': user_id}
-            updated = {"$set": {"STATUS_ID": status_id, "USER_ID": user_id, "STATUS_TEXT": status_text}}
+            updated = {"$set": {"STATUS_ID": status_id,
+                                "USER_ID": user_id, "STATUS_TEXT": status_text}}
             StatusUpdates.update_one(query, updated)
             print(f'User {user_id}\'s status has been successfully updated.')
             return ReturnDocument
@@ -126,7 +131,7 @@ class UserStatusCollection:
                 StatusUpdates.delete_one(query)
                 logger.info(f'Status ID {status_id} has been deleted.')
                 return True
-            except Exception as error:
+            except ValueError as error:
                 print('An error has occurred - status has not been deleted.')
                 logger.info(error)
                 return False
@@ -147,5 +152,6 @@ class UserStatusCollection:
                 StatusUpdates = db["StatusUpdates"]
                 found = StatusUpdates.find_one({"STATUS_ID": status_id})
                 return found
-            except Exception as error:
+            except ValueError as error:
                 logger.info(error)
+                return False
